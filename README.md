@@ -5,6 +5,5 @@ Messy Programming
 Course coding and other exploring
 
 ## Machine Learning
-Coursera ML Courses by Andrew Ng, Starford./
-Exercice codes/
+Exercice codes of Coursera ML Courses by Andrew Ng, Starford.   
 To be continue...
