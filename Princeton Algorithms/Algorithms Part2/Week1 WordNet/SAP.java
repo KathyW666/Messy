@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SAP {
-    private Digraph G;
+    private final Digraph G;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         if (G == null) throw new NullPointerException();
-        this.G = G;
+        this.G = new Digraph(G);
     }
 
     private void validateVertex(int v) {
@@ -21,12 +21,17 @@ public class SAP {
             throw new IllegalArgumentException("Vertex " + v + " is outside its prescribed range!");
     }
 
+    // Have to throw IllegalArgumentException as Coursera OJ's need.
     private void validateVertices(Iterable<Integer> vertices) {
-        if (vertices == null) throw new IllegalArgumentException("argument is null");
-        for (int v : vertices) {
-            if (v < 0 || v >= G.V()) {
-                throw new IllegalArgumentException("vertex " + v + "is outside its prescribed range!");
+        if (vertices == null) throw new IllegalArgumentException("Argument is null!");
+        try {
+            for (Integer v : vertices) {
+                if (v == null || v < 0 || v >= G.V()) {
+                    throw new IllegalArgumentException("vertex " + v + "is outside its prescribed range!");
+                }
             }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("vertex is null!");
         }
     }
 

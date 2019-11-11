@@ -12,9 +12,9 @@ import java.util.Map;
 public class WordNet {
     private Digraph G;
     private int V;
-    private SAP SAP;
-    private Map<String, List<Integer>> nouns;
-    private Map<Integer, String> synsetsMap;
+    private final SAP SAP;
+    private final Map<String, List<Integer>> nouns;
+    private final Map<Integer, String> synsetsMap;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -35,6 +35,7 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
+        if (word == null) throw new IllegalArgumentException("word is null!");
         return nouns.containsKey(word);
     }
 
@@ -59,9 +60,14 @@ public class WordNet {
     }
 
     // The input to the constructor corresponds to a rooted DAG
-    private void validateDigraph(Digraph G) {
-        DirectedCycle directedCycle = new DirectedCycle(G);
+    private void validateDigraph(Digraph digraph) {
+        DirectedCycle directedCycle = new DirectedCycle(digraph);
         if (directedCycle.hasCycle()) throw new IllegalArgumentException("Digraph has cycle!");
+        int roots = 0;
+        for (int v = 0; v < V; v++) {
+            if (digraph.outdegree(v) == 0) roots++;
+            if (roots > 1) throw new IllegalArgumentException("Digraph has more than one root!");
+        }
     }
 
     // Initial Synsets, store in 2 maps
@@ -69,23 +75,23 @@ public class WordNet {
     // 2) word - id list, <"wind", [81193, 81194, 81195, 81196]>
     private void initSynsets(String synsets) {
         In in = new In(synsets);
-        int V = 0;
+        int v = 0;
         while (in.hasNextLine()) {
             String line = in.readLine();
             String[] realms = line.split(",");
-            int id = Integer.valueOf(realms[0]);
+            int id = Integer.parseInt(realms[0]);
             synsetsMap.put(id, realms[1]);
             String[] words = realms[1].split(" ");
-            for (int i = 0; i < words.length; i++) {
+            for (String word : words) {
                 List<Integer> list;
-                if (nouns.containsKey(words[i])) list = nouns.get(words[i]);
+                if (nouns.containsKey(word)) list = nouns.get(word);
                 else list = new ArrayList<>();
                 list.add(id);
-                nouns.put(words[i], list);
+                nouns.put(word, list);
             }
-            V++;
+            v++;
         }
-        this.V = V;
+        this.V = v;
     }
 
     // construct the Digraph
@@ -94,9 +100,9 @@ public class WordNet {
         G = new Digraph(this.V);
         while (in.hasNextLine()) {
             String[] vIds = in.readLine().split(",");
-            int v = Integer.valueOf(vIds[0]);
+            int v = Integer.parseInt(vIds[0]);
             for (int i = 1; i < vIds.length; i++) {
-                int w = Integer.valueOf(vIds[i]);
+                int w = Integer.parseInt(vIds[i]);
                 G.addEdge(v, w);
             }
         }
